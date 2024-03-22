@@ -91,7 +91,7 @@ function displaySuggestions(suggestions) {
     const suggestionsList = document.createElement('ul');
     suggestions.forEach((item, index) => {
         const listItem = document.createElement('li');
-        listItem.textContent = `${item.word} (${item.reading})`;
+        listItem.textContent = `${item.reading}`;
         listItem.addEventListener('click', () => {
             inputBox.value = item.word;
             addSelectedSuggestion(item.word);
@@ -120,6 +120,11 @@ function handleArrowKeys(event) {
     } else if (event.key === 'ArrowUp') {
         selectedIndex = Math.max(selectedIndex - 1, -1);
         updateSelectedIndex(suggestionsDiv);
+    } else if (event.key === 'Enter' && !(suggestions.length == 0 && selectedIndex == -1)) {
+        const selectedSuggestion = suggestions[Math.max(selectedIndex, 0)];
+        inputBox.value = selectedSuggestion.textContent.split(' ')[0];
+        addSelectedSuggestion(inputBox.value);
+        suggestionsDiv.style.display = 'none';
     }
 }
 
