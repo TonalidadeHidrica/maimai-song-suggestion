@@ -123,6 +123,8 @@ function displaySuggestions(suggestions) {
     suggestionsDiv.innerHTML = '';
     suggestionsDiv.appendChild(suggestionsList);
     suggestionsDiv.style.display = 'block';
+
+    if (selectedIndex >= suggestions.length) selectedIndex = -1;
 }
 
 function handleArrowKeys(event) {
