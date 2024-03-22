@@ -53,6 +53,7 @@
 <div id="selectedSuggestions"></div>
 <input type="text" id="inputBox" oninput="showSuggestions()" onkeydown="handleArrowKeys(event)">
 <div id="suggestions"></div>
+<button id="copyButton">Copy to Clipboard</button>
 
 <script>
 let dictionary = {};
@@ -174,6 +175,25 @@ function addSelectedSuggestion(suggestion, songName) {
 
 function deleteSelectedSuggestion(selectedSuggestionItem) {
     selectedSuggestionItem.remove();
+}
+
+const copyButton = document.getElementById('copyButton');
+copyButton.addEventListener('click', copyToClipboard);
+
+function copyToClipboard() {
+    const selectedSongs = document.querySelectorAll('#selectedSuggestions li');
+    const songsText = Array.from(selectedSongs)
+        .map(song => song.getAttribute('data-song-name'))
+        .join('\n');
+    navigator.clipboard.writeText(songsText)
+        .then(() => {
+            console.log('Songs copied to clipboard:', songsText);
+            alert('Songs copied to clipboard!');
+        })
+        .catch(error => {
+            console.error('Error copying songs to clipboard:', error);
+            alert('Failed to copy songs to clipboard!');
+        });
 }
 </script>
 
