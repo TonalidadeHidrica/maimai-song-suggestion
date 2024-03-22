@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suggestion System</title>
+<style>
+    #suggestions {
+        display: none;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        position: absolute;
+        z-index: 1;
+        width: 200px;
+    }
+    #suggestions ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    #suggestions ul li {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+    #suggestions ul li:hover {
+        background-color: #ddd;
+    }
+</style>
+</head>
+<body>
+
+<input type="text" id="inputBox" oninput="showSuggestions()">
+<div id="suggestions"></div>
+
+<script>
+const dictionary = {
+    "こんにちは": "Konnichiwa",
+    "ありがとう": "Arigatou",
+    // Add more entries as needed
+};
+
+const inputBox = document.getElementById('inputBox');
+const suggestionsDiv = document.getElementById('suggestions');
+
+function showSuggestions() {
+    const inputText = inputBox.value.toLowerCase();
+    const suggestions = getMatchingSuggestions(inputText);
+    displaySuggestions(suggestions);
+}
+
+function getMatchingSuggestions(inputText) {
+    const matchingSuggestions = [];
+    for (const key in dictionary) {
+        if (key.startsWith(inputText)) {
+            matchingSuggestions.push({ word: key, reading: dictionary[key] });
+        }
+    }
+    return matchingSuggestions;
+}
+
+function displaySuggestions(suggestions) {
+    if (suggestions.length === 0) {
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+
+    const suggestionsList = document.createElement('ul');
+    suggestions.forEach((item) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${item.word} (${item.reading})`;
+        listItem.addEventListener('click', () => {
+            inputBox.value = item.word;
+            suggestionsDiv.style.display = 'none';
+        });
+        suggestionsList.appendChild(listItem);
+    });
+
+    suggestionsDiv.innerHTML = '';
+    suggestionsDiv.appendChild(suggestionsList);
+    suggestionsDiv.style.display = 'block';
+}
+
+</script>
+
+</body>
+</html>
