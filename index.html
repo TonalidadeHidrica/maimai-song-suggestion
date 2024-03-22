@@ -55,11 +55,26 @@
 <div id="suggestions"></div>
 
 <script>
-const dictionary = {
-    "こんにちは": "Konnichiwa",
-    "ありがとう": "Arigatou",
-    // Add more entries as needed
-};
+let dictionary = {};
+
+// https://qiita.com/mimoe/items/855c112625d39b066c9a
+function hiraToKana(str) {
+    return str.replace(/[\u3041-\u3096]/g, function(match) {
+        var chr = match.charCodeAt(0) + 0x60;
+        return String.fromCharCode(chr);
+    });
+}
+
+async function loadDictionary() {
+    try {
+        const response = await fetch('data.json');
+        dictionary = await response.json();
+    } catch (error) {
+        console.error('Error loading dictionary:', error);
+    }
+}
+
+loadDictionary();
 
 const inputBox = document.getElementById('inputBox');
 const suggestionsDiv = document.getElementById('suggestions');
@@ -67,16 +82,16 @@ const selectedSuggestionsDiv = document.getElementById('selectedSuggestions');
 let selectedIndex = -1;
 
 function showSuggestions() {
-    const inputText = inputBox.value.toLowerCase();
+    const inputText = hiraToKana(inputBox.value.toUpperCase());
     const suggestions = getMatchingSuggestions(inputText);
     displaySuggestions(suggestions);
 }
 
 function getMatchingSuggestions(inputText) {
     const matchingSuggestions = [];
-    for (const key in dictionary) {
-        if (key.startsWith(inputText)) {
-            matchingSuggestions.push({ word: key, reading: dictionary[key] });
+    for (const song of dictionary) {
+        if (song.kana.startsWith(inputText)) {
+            matchingSuggestions.push(song);
         }
     }
     return matchingSuggestions;
@@ -91,12 +106,13 @@ function displaySuggestions(suggestions) {
     const suggestionsList = document.createElement('ul');
     suggestions.forEach((item, index) => {
         const listItem = document.createElement('li');
-        listItem.textContent = `${item.reading}`;
-        listItem.addEventListener('click', () => {
-            inputBox.value = item.word;
-            addSelectedSuggestion(item.word);
-            suggestionsDiv.style.display = 'none';
-        });
+        listItem.textContent = `${item.abbrev_name}`;
+        listItem.setAttribute("data-song-name", item.song_name);
+        // listItem.addEventListener('click', () => {
+        //     inputBox.value = item.word;
+        //     addSelectedSuggestion(item.word);
+        //     suggestionsDiv.style.display = 'none';
+        // });
         if (index === selectedIndex) {
             listItem.classList.add('selected');
         }
@@ -122,8 +138,8 @@ function handleArrowKeys(event) {
         updateSelectedIndex(suggestionsDiv);
     } else if (event.key === 'Enter' && !(suggestions.length == 0 && selectedIndex == -1)) {
         const selectedSuggestion = suggestions[Math.max(selectedIndex, 0)];
-        inputBox.value = selectedSuggestion.textContent.split(' ')[0];
-        addSelectedSuggestion(inputBox.value);
+        inputBox.value = selectedSuggestion.textContent;
+        addSelectedSuggestion(inputBox.value, selectedSuggestion.getAttribute("data-song-name"));
         suggestionsDiv.style.display = 'none';
     }
 }
@@ -141,9 +157,10 @@ function updateSelectedIndex(suggestionsDiv) {
     });
 }
 
-function addSelectedSuggestion(suggestion) {
+function addSelectedSuggestion(suggestion, songName) {
     const selectedSuggestionItem = document.createElement('li');
     selectedSuggestionItem.textContent = suggestion;
+    selectedSuggestionItem.setAttribute("data-song-name", songName);
     selectedSuggestionItem.addEventListener('click', () => {
         deleteSelectedSuggestion(selectedSuggestionItem);
     });
