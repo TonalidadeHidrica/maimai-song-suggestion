@@ -43,6 +43,9 @@
     #selectedSuggestions ul li:hover {
         background-color: #e0e0e0;
     }
+.selected {
+    background-color: #ddd !important;
+}
 </style>
 </head>
 <body>
@@ -106,19 +109,25 @@ function displaySuggestions(suggestions) {
 }
 
 function handleArrowKeys(event) {
-	console.log(event, selectedIndex);
+    const suggestionsList = suggestionsDiv.querySelector('ul');
+    if (!suggestionsList) return;
+
+    const suggestions = Array.from(suggestionsList.children);
+
     if (event.key === 'ArrowDown') {
         selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
-        updateSelectedIndex(suggestions);
+        updateSelectedIndex(suggestionsDiv);
     } else if (event.key === 'ArrowUp') {
         selectedIndex = Math.max(selectedIndex - 1, -1);
-        updateSelectedIndex(suggestions);
+        updateSelectedIndex(suggestionsDiv);
     }
-	console.log(event, selectedIndex);
 }
 
-function updateSelectedIndex(suggestions) {
-    suggestions.forEach((item, index) => {
+function updateSelectedIndex(suggestionsDiv) {
+    const suggestionsList = suggestionsDiv.querySelector('ul');
+    if (!suggestionsList) return;
+
+    Array.from(suggestionsList.children).forEach((item, index) => {
         if (index === selectedIndex) {
             item.classList.add('selected');
         } else {
