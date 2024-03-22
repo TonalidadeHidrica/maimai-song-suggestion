@@ -25,11 +25,30 @@
     #suggestions ul li:hover {
         background-color: #ddd;
     }
+    #selectedSuggestions {
+        margin-bottom: 10px;
+    }
+    #selectedSuggestions ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    #selectedSuggestions ul li {
+        display: inline-block;
+        margin-right: 5px;
+        padding: 5px;
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+    #selectedSuggestions ul li:hover {
+        background-color: #e0e0e0;
+    }
 </style>
 </head>
 <body>
 
-<input type="text" id="inputBox" oninput="showSuggestions()">
+<div id="selectedSuggestions"></div>
+<input type="text" id="inputBox" oninput="showSuggestions()" onkeydown="handleArrowKeys(event)">
 <div id="suggestions"></div>
 
 <script>
@@ -41,6 +60,8 @@ const dictionary = {
 
 const inputBox = document.getElementById('inputBox');
 const suggestionsDiv = document.getElementById('suggestions');
+const selectedSuggestionsDiv = document.getElementById('selectedSuggestions');
+let selectedIndex = -1;
 
 function showSuggestions() {
     const inputText = inputBox.value.toLowerCase();
@@ -65,13 +86,17 @@ function displaySuggestions(suggestions) {
     }
 
     const suggestionsList = document.createElement('ul');
-    suggestions.forEach((item) => {
+    suggestions.forEach((item, index) => {
         const listItem = document.createElement('li');
         listItem.textContent = `${item.word} (${item.reading})`;
         listItem.addEventListener('click', () => {
             inputBox.value = item.word;
+            addSelectedSuggestion(item.word);
             suggestionsDiv.style.display = 'none';
         });
+        if (index === selectedIndex) {
+            listItem.classList.add('selected');
+        }
         suggestionsList.appendChild(listItem);
     });
 
@@ -80,6 +105,45 @@ function displaySuggestions(suggestions) {
     suggestionsDiv.style.display = 'block';
 }
 
+function handleArrowKeys(event) {
+	console.log(event, selectedIndex);
+    if (event.key === 'ArrowDown') {
+        selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+        updateSelectedIndex(suggestions);
+    } else if (event.key === 'ArrowUp') {
+        selectedIndex = Math.max(selectedIndex - 1, -1);
+        updateSelectedIndex(suggestions);
+    }
+	console.log(event, selectedIndex);
+}
+
+function updateSelectedIndex(suggestions) {
+    suggestions.forEach((item, index) => {
+        if (index === selectedIndex) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
+    });
+}
+
+function addSelectedSuggestion(suggestion) {
+    const selectedSuggestionItem = document.createElement('li');
+    selectedSuggestionItem.textContent = suggestion;
+    selectedSuggestionItem.addEventListener('click', () => {
+        deleteSelectedSuggestion(selectedSuggestionItem);
+    });
+    let ulElement = selectedSuggestionsDiv.querySelector('ul');
+    if (!ulElement) {
+        ulElement = document.createElement('ul');
+        selectedSuggestionsDiv.appendChild(ulElement);
+    }
+    ulElement.appendChild(selectedSuggestionItem);
+}
+
+function deleteSelectedSuggestion(selectedSuggestionItem) {
+    selectedSuggestionItem.remove();
+}
 </script>
 
 </body>
